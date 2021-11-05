@@ -71,10 +71,10 @@ const Popup: React.FC = () => {
 				<div className="header">
 					<a
 						className="plugin-link"
-						href="https://github.com/cmgriffing/stethoscope"
+						href="https://github.com/cmgriffing/stethoscope#readme"
 						onClick={(event) => {
 							event.preventDefault();
-							openWebPage("https://github.com/cmgriffing/stethoscope");
+							openWebPage("https://github.com/cmgriffing/stethoscope#readme");
 							return false;
 						}}
 					>
