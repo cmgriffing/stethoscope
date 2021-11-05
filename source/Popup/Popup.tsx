@@ -64,8 +64,8 @@ const Popup: React.FC = () => {
 					background={true}
 				/>
 				<div className="letter-grade">{grade?.letter}</div>
-				<h3 className="repo-detail">Repo: {scoreDetails?.repoName}</h3>
-				<h4 className="repo-detail">Author: {scoreDetails?.authorName}</h4>
+				<h3 className="repo-detail repo-name"><span className=" single-line-ellipsis">{scoreDetails?.repoName}</span></h3>
+				<h4 className="repo-detail repo-author"><span className=" single-line-ellipsis">{scoreDetails?.authorName}</span></h4>
 			</div>
 			<div className="content">
 				<div className="header">

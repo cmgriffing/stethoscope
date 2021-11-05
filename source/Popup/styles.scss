@@ -19,6 +19,15 @@ body {
 
 		.repo-detail {
 			text-align: left;
+			position: relative;
+
+			&::before {
+				position: absolute;
+				top: -10px;
+				color: #555;
+				left: 0;
+				font-size: 10px;
+			}
 		}
 
 		.score-circle {
@@ -31,6 +40,18 @@ body {
 			margin: 8px 0;
 			font-size: 28px;
 			font-weight: 700;
+		}
+
+		.repo-name {
+			&::before {
+				content: "Repo:"
+			}
+		}
+
+		.repo-author {
+			&::before {
+				content: "Author:"
+			}
 		}
 	}
 
@@ -72,4 +93,12 @@ body {
 			}
 		}
 	}
+}
+
+.single-line-ellipsis {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: block;
+	max-width: 100%;
+	overflow: hidden;
 }

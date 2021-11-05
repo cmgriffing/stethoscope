@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Stethoscope",
-  "version": "0.0.1",
+  "version": "0.0.0",
 
   "icons": {
     "48": "assets/stethoscope_48.png",
@@ -32,10 +32,8 @@
   "browser_action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "assets/icons/favicon-16.png",
-      "32": "assets/icons/favicon-32.png",
-      "48": "assets/icons/favicon-48.png",
-      "128": "assets/icons/favicon-128.png"
+      "48": "assets/stethoscope_48.png",
+      "128": "assets/stethoscope_128.png"
     },
     "default_title": "tiny title",
     "__chrome|opera__chrome_style": false,

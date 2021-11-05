@@ -4,20 +4,7 @@ import { MessageEventName } from "../types";
 
 /*
 
-  Basic criteria:
-    - license file - immediate fail if no license
-      - or section in readme
-
-      - stars - 5 if above 100
-    - readme file - 20 (take length into account eventually. (height?, sections? who knows))
-    - most recent commit - 20 - scaled to within a year
-    - amount of contributors - 5 - if greater than 5
-    - amount of commits - 10
-    - sponsors - 5 if exist
-    - releases - 5 if recent
-    - has docs folder - 5 - just for having
-    - frequency of commits - 10 - check distance between most recent and oldest, check for varied dates between
-    - open issues - 10 -
+  Ideas for criteria:
 
     - link in about section - 5
       - has prepared docs website - 5 - just for having

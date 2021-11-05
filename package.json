@@ -1,6 +1,6 @@
 {
-	"name": "web-extension-starter",
-	"version": "2.0.0",
+	"name": "Stethoscope",
+	"version": "0.1.0",
 	"description": "",
 	"private": true,
 	"repository": "https://github.com/cmgriffing/stethoscope.git",
