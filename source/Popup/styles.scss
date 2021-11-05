@@ -1,0 +1,70 @@
+@import "../styles/fonts";
+@import "../styles/reset";
+@import "../styles/variables";
+
+body {
+	color: $black;
+	background-color: $greyWhite;
+}
+
+.popup {
+	min-width: 350px;
+	max-height: 210px;
+	padding: 10px;
+	text-align: center;
+	display: flex;
+
+	.sidebar {
+		width: 120px;
+
+		.repo-detail {
+			text-align: left;
+		}
+
+		.score-circle {
+			width: 80px;
+			height: 80px;
+			margin: 0 auto;
+		}
+
+		.letter-grade {
+			margin: 8px 0;
+			font-size: 28px;
+			font-weight: 700;
+		}
+	}
+
+	.content {
+		flex: 1 1;
+		display: flex;
+		flex-direction: column;
+
+		.header {
+			height: 35px;
+			text-align: right;
+			font-size: 25px;
+		}
+
+		.details {
+			flex: 1 1;
+			overflow-y: scroll;
+
+			ul {
+				display: flex;
+				flex-direction: column;
+				padding-right: 10px;
+			}
+
+			li {
+				margin: 6px 0;
+				text-align: right;
+				display: flex;
+
+				.detail-label {
+					flex: 1 1;
+					padding-right: 8px;
+				}
+			}
+		}
+	}
+}
