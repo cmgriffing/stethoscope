@@ -43,6 +43,11 @@ body {
 			height: 35px;
 			text-align: right;
 			font-size: 25px;
+
+			.plugin-link {
+				text-decoration: none;
+				color: #000;
+			}
 		}
 
 		.details {

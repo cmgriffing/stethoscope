@@ -3,45 +3,42 @@ import { createScoreDetails } from "../data";
 import { MessageEventName } from "../types";
 
 /*
-- license file - immediate fail if no license
-  - or section in readme
 
-  - stars - 5 if above 100
-- readme file - 20 (take length into account eventually. (height?, sections? who knows))
-- most recent commit - 20 - scaled to within a year
-- amount of contributors - 5 - if greater than 5
-- amount of commits - 10
-- sponsors - 5 if exist
-- releases - 5 if recent
-- has docs folder - 5 - just for having
-- frequency of commits - 10 - check distance between most recent and oldest, check for varied dates between
-- open issues - 10 -
+  Basic criteria:
+    - license file - immediate fail if no license
+      - or section in readme
 
-- link in about section - 5
-  - has prepared docs website - 5 - just for having
-- open pull requests - 10 -
-- specific readme sections? - 5 - for having a contributing section
+      - stars - 5 if above 100
+    - readme file - 20 (take length into account eventually. (height?, sections? who knows))
+    - most recent commit - 20 - scaled to within a year
+    - amount of contributors - 5 - if greater than 5
+    - amount of commits - 10
+    - sponsors - 5 if exist
+    - releases - 5 if recent
+    - has docs folder - 5 - just for having
+    - frequency of commits - 10 - check distance between most recent and oldest, check for varied dates between
+    - open issues - 10 -
+
+    - link in about section - 5
+      - has prepared docs website - 5 - just for having
+    - open pull requests - 10 -
+    - specific readme sections? - 5 - for having a contributing section
 
 
-Nice to have
-- badges (build passing, etc) - -10 - Lose points for a fail
+    Nice to have
+    - badges (build passing, etc) - -10 - Lose points for a fail
 */
+
 const humanFormat = require("human-format");
 
 const MILLISECONDS_PER_YEAR = 365 * 24 * 60 * 60 * 1000;
 
-let loaded = false;
-
 window.addEventListener("load", () => {
-	loaded = true;
 	getScore();
 });
 
 browser.runtime.onMessage.addListener(function (_request: any, _sender: any) {
-	console.log("content script on message", { loaded });
-
 	getScore();
-	// }
 });
 
 async function getScore() {
@@ -122,8 +119,6 @@ async function getScore() {
 			score.scores.openIssues.score = score.scores.openIssues.maxScore;
 		}
 
-		console.log({ score });
-
 		browser.runtime.sendMessage(undefined, {
 			eventName: MessageEventName.ScoreCalculated,
 			score,
@@ -131,14 +126,7 @@ async function getScore() {
 	} else {
 		// immediate fail
 		console.log("No License");
-
-		browser.runtime.sendMessage(
-			undefined,
-			{ score }
-			//   , function (response: any) {
-			// 	console.log("score sent and received", response);
-			// }
-		);
+		browser.runtime.sendMessage(undefined, { score });
 	}
 }
 

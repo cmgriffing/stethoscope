@@ -1,15 +1,15 @@
 import * as React from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { browser } from "webextension-polyfill-ts";
+import { browser, Tabs } from "webextension-polyfill-ts";
 import { MessageEventName, Score, ScoreDetails } from "../types";
 import { getGradeFromScoreTotal, getTotalFromScore } from "../utils";
 import { Icon } from "@iconify/react";
 import "./styles.scss";
 
-// function openWebPage(url: string): Promise<Tabs.Tab> {
-// 	return browser.tabs.create({ url });
-// }
+function openWebPage(url: string): Promise<Tabs.Tab> {
+	return browser.tabs.create({ url });
+}
 
 const Popup: React.FC = () => {
 	const [scoreDetails, setScoreDetails] = React.useState<ScoreDetails>();
@@ -69,7 +69,17 @@ const Popup: React.FC = () => {
 			</div>
 			<div className="content">
 				<div className="header">
-					<h2>🩺 Stethoscope</h2>
+					<a
+						className="plugin-link"
+						href="https://github.com/cmgriffing/stethoscope"
+						onClick={(event) => {
+							event.preventDefault();
+							openWebPage("https://github.com/cmgriffing/stethoscope");
+							return false;
+						}}
+					>
+						<h2>🩺 Stethoscope</h2>
+					</a>
 				</div>
 				<div className="details">
 					<ul>
