@@ -220,9 +220,7 @@ function checkForReleases() {
 }
 
 function getStars() {
-	const starButton = document.querySelector(
-		'button[aria-label="Star this repository"]'
-	);
+	const starButton = document.querySelector(".js-social-count");
 
 	const buttonParent = starButton?.parentElement;
 
