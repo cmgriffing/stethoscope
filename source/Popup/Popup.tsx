@@ -117,7 +117,11 @@ const Popup: React.FC = () => {
               setSettingsShowing(!settingsShowing);
             }}
           >
-            <Icon icon="ci:settings" />
+            <Icon
+              icon="ci:settings"
+              className="settings-icon"
+              color={settingsShowing ? "#00d" : "#555"}
+            />
           </button>
         </div>
         <div className="details">

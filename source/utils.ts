@@ -33,6 +33,8 @@ export function getTotalFromScore(
     });
   }
 
+  maxPossibleScore = Math.min(100, maxPossibleScore);
+
   let adjustedScore = 100;
   if (maxPossibleScore > 0) {
     adjustedScore = (scoreTotal / maxPossibleScore) * 100;
