@@ -298,17 +298,45 @@ function getMostRecentCommitTime(modifiedDatesElements: Element[]) {
 }
 
 function checkForLicense() {
+  const rawFilenames = [
+    "License",
+    "LICENSE",
+    "Licence",
+    "LICENCE",
+    "Licenses",
+    "LICENSES",
+    "Licences",
+    "LICENCES",
+    "COPYING",
+  ];
+
+  const markdownFilenames = rawFilenames.map((filename) => `${filename}.md`);
+
+  const capitalizedMarkdownFilenames = rawFilenames.map(
+    (filename) => `${filename}.MD`
+  );
+
+  const rstFilenames = rawFilenames.map((filename) => `${filename}.rst`);
+
+  const capitalizedRstFilenames = rawFilenames.map(
+    (filename) => `${filename}.RST`
+  );
+
+  const txtFilenames = rawFilenames.map((filename) => `${filename}.txt`);
+
+  const capitalizedTxtFilenames = rawFilenames.map(
+    (filename) => `${filename}.TXT`
+  );
+
   const hasLicenseFile = hasAtleastOneSelector(
     [
-      "License",
-      "LICENSE",
-      "Licence",
-      "LICENCE",
-      "Licenses",
-      "LICENSES",
-      "Licences",
-      "LICENCES",
-      "COPYING",
+      rawFilenames,
+      markdownFilenames,
+      capitalizedMarkdownFilenames,
+      rstFilenames,
+      capitalizedRstFilenames,
+      txtFilenames,
+      capitalizedTxtFilenames,
     ].map((title) => `.Details a[title="${title}"]`)
   );
 
