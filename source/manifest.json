@@ -20,8 +20,7 @@
     "name": "cmgriffing"
   },
 
-  "__firefox__applications": {
-  },
+  "__firefox__applications": {},
 
   "__chrome__minimum_chrome_version": "49",
   "__opera__minimum_opera_version": "36",

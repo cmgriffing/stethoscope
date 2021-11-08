@@ -23,7 +23,7 @@ export function getTotalFromScore(
   scoreTotal = 0
 ) {
   let maxPossibleScore = 0;
-  if (scoreTotal === 0 && score.hasLicense) {
+  if (scoreTotal === 0) {
     Object.entries(score.scores).forEach(([scoreKey, scoreDetails]) => {
       const scoreConfigDetails = scoreConfig.values[scoreKey as ScoreKey];
       if (scoreConfigDetails.enabled) {
@@ -32,6 +32,10 @@ export function getTotalFromScore(
       }
     });
   }
+  if (!score.hasLicense) {
+    scoreTotal = 0;
+  }
+  console.log({ scoreTotal, maxPossibleScore });
 
   maxPossibleScore = Math.min(100, maxPossibleScore);
 

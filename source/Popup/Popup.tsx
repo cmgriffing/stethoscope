@@ -124,74 +124,89 @@ const Popup: React.FC = () => {
             />
           </button>
         </div>
-        <div className="details">
-          <ul>
-            {Object.entries(scoreDetails?.scores || []).map((entry) => {
-              const scoreKey = entry[0] as ScoreKey;
-              const score = entry[1];
+        {!scoreDetails.hasLicense && (
+          <div className="details no-license">
+            <h2>No License found.</h2>
+            <p>
+              A repo without a license is unusable as far as this extension is
+              concerned.
+            </p>
+          </div>
+        )}
+        {scoreDetails.hasLicense && (
+          <div className="details">
+            <ul>
+              {Object.entries(scoreDetails?.scores || []).map((entry) => {
+                const scoreKey = entry[0] as ScoreKey;
+                const score = entry[1];
 
-              const scoreKeyEnabled = scoreConfig?.values[scoreKey].enabled;
+                const scoreKeyEnabled = scoreConfig?.values[scoreKey].enabled;
 
-              return (
-                <li>
-                  <span className="detail-label">{score.label}</span>
-                  {score.score > 0 ? (
-                    <Icon
-                      className="score-icon"
-                      icon="bi:check-circle-fill"
-                      color="#080"
-                    />
-                  ) : (
-                    <Icon
-                      className="score-icon"
-                      icon="bi:x-octagon-fill"
-                      color="#b00"
-                    />
-                  )}
-                  <div className="score-detail-toggle">
-                    <label className="sr-only">Toggle {score.label}</label>
-                    <Switch
-                      id={`${scoreKey}-switch`}
-                      size="sm"
-                      isChecked={scoreKeyEnabled}
-                      onChange={() => {
-                        browser.tabs
-                          .query({ active: true, currentWindow: true })
-                          .then((tabs) => {
-                            // update config object
-                            const newScoreConfig = cloneDeep(scoreConfig);
-                            newScoreConfig.values[scoreKey].enabled =
-                              !scoreKeyEnabled;
-                            newScoreConfig.modifiedDate = Date.now();
+                return (
+                  <li>
+                    <span className="detail-label">{score.label}</span>
+                    {score.score > 0 ? (
+                      <Icon
+                        className="score-icon"
+                        icon="bi:check-circle-fill"
+                        color="#080"
+                      />
+                    ) : (
+                      <Icon
+                        className="score-icon"
+                        icon="bi:x-octagon-fill"
+                        color="#b00"
+                      />
+                    )}
+                    <div className="score-detail-toggle">
+                      <label className="sr-only">Toggle {score.label}</label>
+                      <Switch
+                        id={`${scoreKey}-switch`}
+                        size="sm"
+                        isChecked={scoreKeyEnabled}
+                        onChange={() => {
+                          browser.tabs
+                            .query({ active: true, currentWindow: true })
+                            .then((tabs) => {
+                              // update config object
+                              const newScoreConfig = cloneDeep(scoreConfig);
+                              newScoreConfig.values[scoreKey].enabled =
+                                !scoreKeyEnabled;
+                              newScoreConfig.modifiedDate = Date.now();
 
-                            setScoreConfig(newScoreConfig);
+                              setScoreConfig(newScoreConfig);
 
-                            const currentKeyScoreValue =
-                              scoreDetails.scores[scoreKey].score;
-                            // current value is inverse of previous value
-                            if (!scoreKeyEnabled) {
-                              setScoreTotal(scoreTotal + currentKeyScoreValue);
-                            } else {
-                              setScoreTotal(scoreTotal - currentKeyScoreValue);
-                            }
+                              const currentKeyScoreValue =
+                                scoreDetails.scores[scoreKey].score;
+                              // current value is inverse of previous value
+                              if (!scoreKeyEnabled) {
+                                setScoreTotal(
+                                  scoreTotal + currentKeyScoreValue
+                                );
+                              } else {
+                                setScoreTotal(
+                                  scoreTotal - currentKeyScoreValue
+                                );
+                              }
 
-                            const tabId = tabs[0]?.id || 0;
+                              const tabId = tabs[0]?.id || 0;
 
-                            browser.runtime.sendMessage({
-                              eventName: MessageEventName.ConfigChanged,
-                              tabId,
-                              scoreConfig: newScoreConfig,
+                              browser.runtime.sendMessage({
+                                eventName: MessageEventName.ConfigChanged,
+                                tabId,
+                                scoreConfig: newScoreConfig,
+                              });
                             });
-                          });
-                      }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="scroll-indicator"></div>
-        </div>
+                        }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="scroll-indicator"></div>
+          </div>
+        )}
       </div>
     </section>
   );

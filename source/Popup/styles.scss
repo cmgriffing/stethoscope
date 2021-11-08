@@ -84,6 +84,14 @@ body {
       overflow-y: scroll;
       padding-bottom: 42px;
 
+      &.no-license {
+        padding-top: 12px;
+
+        h2 {
+          font-weight: bold;
+        }
+      }
+
       ul {
         display: flex;
         flex-direction: column;

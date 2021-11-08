@@ -125,7 +125,10 @@ async function getScore() {
   } else {
     // immediate fail
     console.log("No License");
-    browser.runtime.sendMessage(undefined, { score });
+    browser.runtime.sendMessage(undefined, {
+      eventName: MessageEventName.ScoreCalculated,
+      score,
+    });
   }
 }
 
@@ -305,14 +308,25 @@ function checkForLicense() {
       "LICENSES",
       "Licences",
       "LICENCES",
+      "COPYING",
     ].map((title) => `.Details a[title="${title}"]`)
   );
 
-  const hasLicenseSection = hasAtleastOneSelector(
-    ["license", "licence"].map((title) => `#user-content-${title}`)
+  const hasLicenseSectionInReadme = hasAtleastOneSelector(
+    ["license", "licence", "scroll-license", "scroll-licence"].map(
+      (title) => `#user-content-${title}`
+    )
   );
 
-  return hasLicenseFile || hasLicenseSection;
+  const hasLicenseSectionInSidebar =
+    hasAtleastOneSelector([".Layout-sidebar .octicon-law"]) ||
+    xpathQuery(
+      '//div[@class="Layout-sidebar"]//h3[text()[contains(.,"License")]]'
+    );
+
+  return (
+    hasLicenseFile || hasLicenseSectionInReadme || hasLicenseSectionInSidebar
+  );
 }
 
 function checkForReadme() {
@@ -333,6 +347,21 @@ function hasAtleastOneSelector(selectors: string[]) {
 
 function scrubNumberString(stringValue: string) {
   return stringValue.replace(new RegExp("[^\\d]", "gm"), "");
+}
+
+function xpathQuery(query: string) {
+  const xpathResult = document.evaluate(
+    query,
+    document,
+    null,
+    XPathResult.ANY_UNORDERED_NODE_TYPE
+  );
+
+  if (!xpathResult) {
+    return;
+  } else {
+    return xpathResult.singleNodeValue as HTMLElement;
+  }
 }
 
 export {};
