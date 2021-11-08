@@ -124,7 +124,7 @@ const Popup: React.FC = () => {
             />
           </button>
         </div>
-        {!scoreDetails.hasLicense && (
+        {!scoreDetails?.hasLicense && (
           <div className="details no-license">
             <h2>No License found.</h2>
             <p>
@@ -133,7 +133,7 @@ const Popup: React.FC = () => {
             </p>
           </div>
         )}
-        {scoreDetails.hasLicense && (
+        {scoreDetails?.hasLicense && (
           <div className="details">
             <ul>
               {Object.entries(scoreDetails?.scores || []).map((entry) => {
@@ -177,7 +177,7 @@ const Popup: React.FC = () => {
                               setScoreConfig(newScoreConfig);
 
                               const currentKeyScoreValue =
-                                scoreDetails.scores[scoreKey].score;
+                                scoreDetails?.scores[scoreKey]?.score;
                               // current value is inverse of previous value
                               if (!scoreKeyEnabled) {
                                 setScoreTotal(
