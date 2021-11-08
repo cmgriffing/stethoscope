@@ -1,8 +1,12 @@
 import { browser } from "webextension-polyfill-ts";
+import { defaultScoreConfig } from "../data";
 import { MessageEventName, ScoreDetails } from "../types";
 import { getGradeFromScoreTotal, getTotalFromScore } from "../utils";
+import { cloneDeep } from "lodash";
 
 const scores: { [key: number]: ScoreDetails } = {};
+
+let scoreConfig = cloneDeep(defaultScoreConfig);
 
 browser.runtime.onInstalled.addListener((): void => {});
 
@@ -35,6 +39,24 @@ browser.runtime.onMessage.addListener(function (request: any, sender: any) {
       eventName: MessageEventName.ScoreCalculated,
       score: scores[request.tabId],
     });
+  } else if (request.eventName === MessageEventName.ConfigRequested) {
+    if (sender?.tab?.id) {
+      browser.tabs.sendMessage(sender.tab.id, {
+        eventName: MessageEventName.ConfigChanged,
+        scoreConfig: scoreConfig,
+      });
+    } else {
+      browser.runtime.sendMessage({
+        eventName: MessageEventName.ConfigChanged,
+        scoreConfig: scoreConfig,
+      });
+    }
+  } else if (request.eventName === MessageEventName.ConfigChanged) {
+    scoreConfig = request.scoreConfig;
+    browser.tabs.sendMessage(request.tabId, {
+      eventName: MessageEventName.ConfigChanged,
+      scoreConfig,
+    });
   }
   // if (request.greeting == "hello") {
   //   sendResponse({ farewell: "goodbye" });
@@ -42,7 +64,7 @@ browser.runtime.onMessage.addListener(function (request: any, sender: any) {
 });
 
 function setIconBasedOnScore(score: ScoreDetails, tabId: number) {
-  const scoreTotal = getTotalFromScore(score);
+  const scoreTotal = getTotalFromScore(score, scoreConfig);
 
   const grade = getGradeFromScoreTotal(scoreTotal);
 

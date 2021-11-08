@@ -1,6 +1,12 @@
-import * as React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from "react";
+import ReactDOM from "react-dom";
+import { ChakraProvider } from "@chakra-ui/react";
 
-import Popup from './Popup';
+import Popup from "./Popup";
 
-ReactDOM.render(<Popup />, document.getElementById('popup-root'));
+ReactDOM.render(
+  <ChakraProvider>
+    <Popup />
+  </ChakraProvider>,
+  document.getElementById("popup-root")
+);
