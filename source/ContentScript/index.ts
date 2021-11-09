@@ -242,18 +242,12 @@ function getStars() {
 }
 
 function getCommitCount() {
-  const gitStatsResult = document.evaluate(
-    '//h2[text()[contains(.,"Git stats")]]',
-    document,
-    null,
-    XPathResult.ANY_UNORDERED_NODE_TYPE
-  );
+  const gitStatsResult = document.querySelector(".octicon-history");
 
   if (!gitStatsResult) {
     return 1;
   } else {
-    const gitStatsElement = gitStatsResult.singleNodeValue;
-    const gitStatsParentElement = gitStatsElement?.parentNode as HTMLElement;
+    const gitStatsParentElement = gitStatsResult.parentElement;
     const countElement = gitStatsParentElement?.querySelector("strong");
 
     return parseInt(scrubNumberString(countElement?.innerText || "0"), 10);
