@@ -200,7 +200,7 @@ function checkForDocumentation() {
 }
 
 function checkForSponsorButton(): boolean {
-  return !!document.querySelector(".octicon-sponsor");
+  return !!document.querySelector(".icon-sponsor");
 }
 
 function checkForReleases() {
