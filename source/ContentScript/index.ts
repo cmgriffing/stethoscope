@@ -324,11 +324,9 @@ function checkForLicense() {
     )
   );
 
-  const hasLicenseSectionInSidebar =
-    hasAtleastOneSelector([".Layout-sidebar .octicon-law"]) ||
-    xpathQuery(
-      '//div[@class="Layout-sidebar"]//h3[text()[contains(.,"License")]]'
-    );
+  const hasLicenseSectionInSidebar = hasAtleastOneSelector([
+    ".Layout-sidebar .octicon-law",
+  ]);
 
   return (
     hasLicenseFile || hasLicenseSectionInReadme || hasLicenseSectionInSidebar
@@ -360,21 +358,6 @@ function hasAtleastOneSelector(selectors: string[]) {
 
 function scrubNumberString(stringValue: string) {
   return stringValue.replace(new RegExp("[^\\d]", "gm"), "");
-}
-
-function xpathQuery(query: string) {
-  const xpathResult = document.evaluate(
-    query,
-    document,
-    null,
-    XPathResult.ANY_UNORDERED_NODE_TYPE
-  );
-
-  if (!xpathResult) {
-    return;
-  } else {
-    return xpathResult.singleNodeValue as HTMLElement;
-  }
 }
 
 export {};
