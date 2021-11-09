@@ -67,11 +67,18 @@ async function getScore() {
         score.scores.mostRecentCommit.maxScore * (1 - percentageOfYear);
     }
 
-    const contributorCount = getContributorsCount();
+    const sidebarLinks = getAllSidebarLinks();
+
+    const contributorCount = getContributorsCount(sidebarLinks);
     if (contributorCount > 5) {
       score.scores.amountOfContributors.value = contributorCount;
       score.scores.amountOfContributors.score =
         score.scores.amountOfContributors.maxScore;
+    }
+
+    if (checkForReleases(sidebarLinks)) {
+      score.scores.releases.value = 1;
+      score.scores.releases.score = score.scores.releases.maxScore;
     }
 
     const commitCount = getCommitCount();
@@ -90,11 +97,6 @@ async function getScore() {
     if (checkForSponsorButton()) {
       score.scores.sponsors.value = 1;
       score.scores.sponsors.score = score.scores.sponsors.maxScore;
-    }
-
-    if (checkForReleases()) {
-      score.scores.releases.value = 1;
-      score.scores.releases.score = score.scores.releases.maxScore;
     }
 
     if (checkForDocumentation()) {
@@ -203,20 +205,15 @@ function checkForSponsorButton(): boolean {
   return !!document.querySelector(".icon-sponsor");
 }
 
-function checkForReleases() {
-  const releasesSectionResult = document.evaluate(
-    '//h2[text()[contains(.,"Releases")]]',
-    document,
-    null,
-    XPathResult.ANY_UNORDERED_NODE_TYPE
-  );
+function checkForReleases(sidebarLinks: HTMLAnchorElement[]) {
+  const releasesElement = sidebarLinks.filter((link) => {
+    return link.href.indexOf("/releases") > 0;
+  })[0];
 
-  if (!releasesSectionResult) {
+  if (!releasesElement) {
     return false;
   } else {
-    const releasesSectionElement =
-      releasesSectionResult?.singleNodeValue as Element;
-    const counterElement = releasesSectionElement?.querySelector(".Counter");
+    const counterElement = releasesElement?.querySelector(".Counter");
 
     const counterValue = parseInt(
       scrubNumberString(counterElement?.getAttribute("title") || "0"),
@@ -254,20 +251,14 @@ function getCommitCount() {
   }
 }
 
-function getContributorsCount() {
-  const contributorsResult = document.evaluate(
-    '//a[text()[contains(.,"Contributors")]]',
-    document,
-    null,
-    XPathResult.ANY_UNORDERED_NODE_TYPE
-  );
+function getContributorsCount(sidebarLinks: HTMLAnchorElement[]) {
+  const contributorsElement = sidebarLinks.filter((link) => {
+    return link.href.indexOf("/graphs/contributors") > 0;
+  })[0];
 
-  if (!contributorsResult) {
+  if (!contributorsElement) {
     return 0;
   } else {
-    const contributorsElement =
-      contributorsResult.singleNodeValue as HTMLElement;
-
     const countElement = contributorsElement?.querySelector(".Counter");
     const scrubbedNumber = scrubNumberString(
       countElement?.getAttribute("title") || "0"
@@ -352,6 +343,13 @@ function checkForReadme() {
   );
 
   return hasReadme;
+}
+
+function getAllSidebarLinks(): HTMLAnchorElement[] {
+  const links = Array.from(document.querySelectorAll(".Layout-sidebar a")).map(
+    (linkNode) => linkNode as HTMLAnchorElement
+  );
+  return links;
 }
 
 function hasAtleastOneSelector(selectors: string[]) {

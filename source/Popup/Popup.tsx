@@ -76,7 +76,7 @@ const Popup: React.FC = () => {
         <CircularProgressbar
           className="score-circle"
           value={scoreTotal}
-          text={`${Math.floor(scoreTotal)}%`}
+          text={`${Math.min(Math.floor(scoreTotal), 100)}%`}
           styles={buildStyles({
             textColor: "#111",
             pathColor: grade?.color || "#DDD",
