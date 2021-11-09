@@ -5,7 +5,7 @@
 ## Usage
 
 Stethoscope is fairly easy to use. We use a set of criteria to judge the repo using only what is available on the repo's root page.
-*There are plans to add further functionality using github login and the API.*
+_There are plans to add further functionality using github login and the API._
 
 ### Steps
 
@@ -72,8 +72,10 @@ Then run the following:
 
 - ### Firefox
 
-  - Load the Add-on via `about:debugging` as temporary Add-on.
-  - Choose the `manifest.json` file in the extracted directory
+  - Navigate to `about:debugging`.
+  - Select `This Firefox`
+  - Click the `Load Temporary Add-on` button.
+  - Choose the `manifest.json` file in the extracted directory (not the \*.xpi file)
 
 - ### Opera
 
