@@ -87,7 +87,7 @@ async function getScore() {
       score.scores.stars.score = score.scores.stars.maxScore;
     }
 
-    if (checkForSponsorSection()) {
+    if (checkForSponsorButton()) {
       score.scores.sponsors.value = 1;
       score.scores.sponsors.score = score.scores.sponsors.maxScore;
     }
@@ -199,15 +199,8 @@ function checkForDocumentation() {
   );
 }
 
-function checkForSponsorSection(): boolean {
-  const sponsorSectionResult = document.evaluate(
-    '//h2[text()[contains(.,"Sponsor this project")]]',
-    document,
-    null,
-    XPathResult.ANY_UNORDERED_NODE_TYPE
-  );
-
-  return !!sponsorSectionResult?.singleNodeValue;
+function checkForSponsorButton(): boolean {
+  return !!document.querySelector(".octicon-sponsor");
 }
 
 function checkForReleases() {
