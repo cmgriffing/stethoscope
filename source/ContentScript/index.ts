@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, capitalize } from "lodash";
 import { browser } from "webextension-polyfill-ts";
 import { createScoreDetails, defaultScoreConfig } from "../data";
 import { MessageEventName } from "../types";
@@ -334,10 +334,47 @@ function checkForLicense() {
 }
 
 function checkForReadme() {
+  const selectors: string[] = [];
+  const filenames = ["readme", "Readme", "README", "ReadMe"];
+  const lowercaseExtensions = [
+    "",
+    ".md",
+    ".markdown",
+    ".mdown",
+    ".mkdn",
+    ".textile",
+    ".rdoc",
+    ".org",
+    ".creole",
+    ".mediawiki",
+    ".wiki",
+    ".rst",
+    ".asciidoc",
+    ".adoc",
+    ".asc",
+    ".pod",
+  ];
+
+  const capitalizedExtensions = lowercaseExtensions.map(capitalize);
+
+  const uppercaseExtensions = lowercaseExtensions.map((extension) =>
+    extension.toUpperCase()
+  );
+
+  const extensions = [
+    ...lowercaseExtensions,
+    ...capitalizedExtensions,
+    ...uppercaseExtensions,
+  ];
+
+  filenames.forEach((filename) => {
+    extensions.forEach((extension) => {
+      selectors.push(`${filename}${extension}`);
+    });
+  });
+
   const hasReadme = hasAtleastOneSelector(
-    ["Readme.md", "README.md", "README.MD", "Readme", "README"].map(
-      (title) => `.Details a[title="${title}"]`
-    )
+    selectors.map((title) => `.Details a[title="${title}"]`)
   );
 
   return hasReadme;
