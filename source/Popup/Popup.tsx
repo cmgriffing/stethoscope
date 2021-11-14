@@ -60,16 +60,6 @@ const Popup: React.FC = () => {
     setGrade(getGradeFromScoreTotal(scoreTotal));
   }, [scoreTotal]);
 
-  //   <button
-  //     id="options__button"
-  //     type="button"
-  //     onClick={(): Promise<Tabs.Tab> => {
-  //       return openWebPage("options.html");
-  //     }}
-  //   >
-  //     Options Page
-  //   </button>
-
   return (
     <section className={`popup ${settingsShowing ? "settings-showing" : ""}`}>
       <div className="sidebar">
@@ -110,18 +100,21 @@ const Popup: React.FC = () => {
               return false;
             }}
           >
-            <h2>🩺 Stethoscope </h2>
+            <h2 className="title">
+              <span className="title-icon">🩺</span> Stethoscope{" "}
+            </h2>
           </a>
           <button
             onClick={() => {
               setSettingsShowing(!settingsShowing);
             }}
           >
-            <Icon
-              icon="ci:settings"
-              className="settings-icon"
-              color={settingsShowing ? "#00d" : "#555"}
-            />
+            {!settingsShowing && (
+              <Icon icon="carbon:settings" className="settings-icon" />
+            )}
+            {settingsShowing && (
+              <Icon icon="carbon:settings-check" className="settings-icon" />
+            )}
           </button>
         </div>
         {!scoreDetails?.hasLicense && (
@@ -147,15 +140,13 @@ const Popup: React.FC = () => {
                     <span className="detail-label">{score.label}</span>
                     {score.score > 0 ? (
                       <Icon
-                        className="score-icon"
+                        className="score-icon pass"
                         icon="bi:check-circle-fill"
-                        color="#080"
                       />
                     ) : (
                       <Icon
-                        className="score-icon"
+                        className="score-icon fail"
                         icon="bi:x-octagon-fill"
-                        color="#b00"
                       />
                     )}
                     <div className="score-detail-toggle">
