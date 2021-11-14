@@ -16,6 +16,35 @@ body {
   overflow: hidden;
   background: $greyWhite;
 
+  &.no-score-found {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    h2 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .no-score-icon {
+        margin-right: 4px;
+      }
+    }
+
+    p {
+      width: 200px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .issue-link {
+      text-decoration: underline;
+    }
+  }
+
   .sidebar {
     width: 120px;
 
@@ -208,6 +237,12 @@ body {
   body,
   .popup {
     background-color: #333;
+
+    &.no-score-found {
+      p {
+        color: #eee;
+      }
+    }
 
     .sidebar {
       .repo-detail {

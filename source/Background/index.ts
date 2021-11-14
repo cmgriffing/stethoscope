@@ -58,9 +58,6 @@ browser.runtime.onMessage.addListener(function (request: any, sender: any) {
       scoreConfig,
     });
   }
-  // if (request.greeting == "hello") {
-  //   sendResponse({ farewell: "goodbye" });
-  // }
 });
 
 function setIconBasedOnScore(score: ScoreDetails, tabId: number) {
