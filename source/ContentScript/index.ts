@@ -328,8 +328,22 @@ function checkForLicense() {
     ".Layout-sidebar .octicon-law",
   ]);
 
+  let hasLicenseLink = Array.from(document.querySelectorAll("a")).some(
+    (link) => {
+      const href = link.getAttribute("href");
+      if (href) {
+        return href.indexOf("https://opensource.org/licenses") > -1;
+      } else {
+        return false;
+      }
+    }
+  );
+
   return (
-    hasLicenseFile || hasLicenseSectionInReadme || hasLicenseSectionInSidebar
+    hasLicenseFile ||
+    hasLicenseSectionInReadme ||
+    hasLicenseSectionInSidebar ||
+    hasLicenseLink
   );
 }
 
