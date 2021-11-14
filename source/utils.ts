@@ -24,7 +24,7 @@ export function getTotalFromScore(
 ) {
   let maxPossibleScore = 0;
   if (scoreTotal === 0) {
-    Object.entries(score.scores).forEach(([scoreKey, scoreDetails]) => {
+    Object.entries(score?.scores || {}).forEach(([scoreKey, scoreDetails]) => {
       const scoreConfigDetails = scoreConfig.values[scoreKey as ScoreKey];
       if (scoreConfigDetails.enabled) {
         scoreTotal += scoreDetails.score;
@@ -32,7 +32,7 @@ export function getTotalFromScore(
       }
     });
   }
-  if (!score.hasLicense) {
+  if (!score?.hasLicense) {
     scoreTotal = 0;
   }
   console.log({ scoreTotal, maxPossibleScore });

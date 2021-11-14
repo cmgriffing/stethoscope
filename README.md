@@ -2,6 +2,14 @@
 <p align="center">Use this extension to get a quick pulse check on any repos you are considering using.</p>
 <hr />
 
+Get it for Chrome (and chrome based browsers):
+[https://chrome.google.com/webstore/detail/stethoscope/gdkkpjagibimlpgmcbaajccgahfbojec](https://chrome.google.com/webstore/detail/stethoscope/gdkkpjagibimlpgmcbaajccgahfbojec)
+
+or
+
+Firefox
+[https://addons.mozilla.org/en-US/firefox/addon/stethoscope/](https://addons.mozilla.org/en-US/firefox/addon/stethoscope/)
+
 ## Usage
 
 Stethoscope is fairly easy to use. We use a set of criteria to judge the repo using only what is available on the repo's root page.

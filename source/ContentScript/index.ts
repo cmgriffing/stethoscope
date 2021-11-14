@@ -40,6 +40,16 @@ window.addEventListener("load", () => {
 });
 
 async function getScore() {
+  //check if we should even be scoring this page
+  const isValidUrl =
+    window.location.pathname.split("/").filter((section) => section !== "")
+      .length === 2;
+
+  if (!isValidUrl) {
+    // do nothing
+    return;
+  }
+
   const score = createScoreDetails();
 
   score.authorName = getAuthorName();
