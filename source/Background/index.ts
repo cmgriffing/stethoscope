@@ -81,5 +81,12 @@ function setIconBasedOnScore(score: ScoreDetails, tabId: number) {
       tabId,
       imageData: renderingContext?.getImageData(0, 0, 32, 32),
     });
+
+    browser.browserAction.setBadgeText({
+      tabId,
+      text: Math.floor(Math.min(100, scoreTotal)).toString(),
+    });
+
+    browser.browserAction.setBadgeBackgroundColor({ tabId, color: "#666" });
   }
 }
