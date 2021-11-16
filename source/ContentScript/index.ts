@@ -17,6 +17,8 @@ import { MessageEventName } from "../types";
     - badges (build passing, etc) - -10 - Lose points for a fail
 */
 
+console.log("Launching content script");
+
 const humanFormat = require("human-format");
 
 const MILLISECONDS_PER_YEAR = 365 * 24 * 60 * 60 * 1000;
@@ -28,15 +30,11 @@ browser.runtime.onMessage.addListener(function (request: any, _sender: any) {
     scoreConfig = request.scoreConfig;
   }
 
-  getScore();
+  getScore().catch(console.log);
 });
 
-window.addEventListener("load", () => {
-  browser.runtime.sendMessage({
-    eventName: MessageEventName.ConfigRequested,
-  });
-
-  getScore();
+browser.runtime.sendMessage({
+  eventName: MessageEventName.ConfigRequested,
 });
 
 async function getScore() {
