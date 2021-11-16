@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "gatsby-plugin-postcss": "^5.1.0",
+    "gh-pages": "^3.2.3",
     "postcss": "^8.3.11",
     "prettier": "^2.4.1"
   },
@@ -31,7 +32,8 @@
   ],
   "license": "0BSD",
   "scripts": {
-    "build": "gatsby build",
+    "build": "gatsby build --prefix-paths",
+    "deploy": "gh-pages -d public",
     "develop": "gatsby develop",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "start": "gatsby develop",

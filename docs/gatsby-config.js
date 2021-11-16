@@ -1,9 +1,10 @@
 module.exports = {
+  pathPrefix: "/stethoscope",
   siteMetadata: {
     title: `A Github repo health check extension`,
     description: `We all have criteria by which we judge a Github repo. This extension bundles that up into a quick and easy pulse check. Get it for your favorite browser now!`,
     author: `@cmgriffing`,
-    siteUrl: `https://github.io/cmgriffing/stethoscope`,
+    siteUrl: `https://cmgriffing.github.io/stethoscope`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
