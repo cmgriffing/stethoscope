@@ -237,8 +237,13 @@ function getStars() {
 
   const buttonParent = starButton?.parentElement;
 
-  const socialCountElement = buttonParent?.querySelector(".social-count");
+  let socialCountElement = buttonParent?.querySelector(".social-count");
 
+  if (!socialCountElement) {
+    socialCountElement =
+        document.querySelector('#repo-stars-counter-unstar') ||
+        document.querySelector('#repo-stars-counter-star');
+  }
   if (socialCountElement) {
     return humanFormat.parse(socialCountElement.innerHTML) || 0;
   }
