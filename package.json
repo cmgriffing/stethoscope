@@ -1,6 +1,6 @@
 {
   "name": "Stethoscope",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "",
   "private": true,
   "repository": "https://github.com/cmgriffing/stethoscope.git",
@@ -23,7 +23,8 @@
     "build:opera": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=opera webpack",
     "build": "yarn run build:chrome && yarn run build:firefox && yarn run build:opera",
     "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "zip:source": ""
   },
   "dependencies": {
     "@babel/runtime": "^7.14.0",
