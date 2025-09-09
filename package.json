@@ -1,12 +1,13 @@
 {
   "name": "Stethoscope",
   "type": "module",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build:chrome": "tsc -b && vite build",
-    "build:firefox": "BROWSER=firefox tsc -b && vite build",
+    "build:chrome": "tsc -b && vite build && web-ext build --source-dir dist --overwrite-dest -n stethoscope.chrome.zip",
+    "build:firefox": "tsc -b && vite build && tsx fix-manifest-firefox.ts && web-ext build --source-dir dist --overwrite-dest -n stethoscope.firefox.zip",
+    "build": "npm run build:chrome && npm run build:firefox",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -40,9 +41,11 @@
     "@types/react-dom": "^19.1.9",
     "@types/webextension-polyfill": "^0.12.3",
     "@vitejs/plugin-react": "^4.7.0",
+    "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.8",
     "typescript": "~5.8.3",
     "vite": "^7.0.5",
-    "vite-plugin-zip-pack": "^1.2.4"
+    "vite-plugin-zip-pack": "^1.2.4",
+    "web-ext": "^8.9.0"
   }
 }
