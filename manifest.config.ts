@@ -1,7 +1,9 @@
 import { defineManifest } from "@crxjs/vite-plugin";
 import pkg from "./package.json";
 
-export default defineManifest({
+const browser = (process.env.BROWSER || "chrome") as "chrome" | "firefox";
+
+const config = {
   manifest_version: 3,
   name: pkg.name,
   version: pkg.version,
@@ -27,4 +29,12 @@ export default defineManifest({
     service_worker: "src/background.ts",
     type: "module",
   },
-});
+} as any;
+
+if (browser === "firefox") {
+  config.background = {
+    scripts: ["src/background.ts"],
+  };
+}
+
+export default defineManifest(config);

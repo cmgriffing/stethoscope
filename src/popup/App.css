@@ -1,11 +1,8 @@
-/* @use "../styles/fonts";
-@use "../styles/reset";
-@use "../styles/variables";
 
 body {
-  color: variables.$black;
-  background-color: variables.$greyWhite;
-} */
+  color: #0d0d0d;
+  background-color: #f3f3f3;
+}
 
 .popup {
   width: 350px;
@@ -14,7 +11,7 @@ body {
   text-align: center;
   display: flex;
   overflow: hidden;
-  /* background: variables.$greyWhite; */
+  background: #f3f3f3;
 
   &.no-score-found {
     flex-direction: column;

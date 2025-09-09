@@ -7,6 +7,8 @@ import zip from "vite-plugin-zip-pack";
 import manifest from "./manifest.config.js";
 import { name, version } from "./package.json";
 
+const browser = (process.env.BROWSER || "chrome") as "chrome" | "firefox";
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -16,7 +18,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    crx({ manifest }),
+    crx({ manifest, browser }),
     zip({ outDir: "release", outFileName: `crx-${name}-${version}.zip` }),
   ],
   server: {
