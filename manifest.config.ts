@@ -6,11 +6,13 @@ export default defineManifest({
   name: pkg.name,
   version: pkg.version,
   icons: {
-    48: "public/logo.png",
+    48: "public/stethoscope_48.png",
+    128: "public/stethoscope_128.png",
   },
   action: {
     default_icon: {
-      48: "public/logo.png",
+      48: "public/stethoscope_48.png",
+      128: "public/stethoscope_128.png",
     },
     default_popup: "src/popup/index.html",
   },
