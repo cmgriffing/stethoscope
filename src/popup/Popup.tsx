@@ -5,7 +5,7 @@ import browser, { Tabs } from "webextension-polyfill";
 import { MessageEventName, ScoreConfig, ScoreKey } from "../types";
 import { getGradeFromScoreTotal, getTotalFromScore } from "../utils";
 import { Icon } from "@iconify/react";
-// import "./styles.scss";
+import "./App.css";
 import { cloneDeep } from "lodash";
 import { createScoreDetails, defaultScoreConfig } from "../data";
 import { Switch } from "@/components/ui/switch";

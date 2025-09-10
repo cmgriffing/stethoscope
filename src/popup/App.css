@@ -214,6 +214,7 @@ body {
 @media (prefers-color-scheme: dark) {
 
   h2,
+  p,
   .letter-grade,
   .repo-detail,
   .detail-label {

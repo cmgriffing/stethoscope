@@ -17,6 +17,13 @@ for (const asset of assets) {
 
 manifest.background = {
   scripts: [backgroundFile],
+  type: "module",
+};
+
+manifest.browser_specific_settings = {
+  gecko: {
+    id: "{816b9ac2-08db-4a8a-9ffe-a95563c78736}",
+  },
 };
 
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
