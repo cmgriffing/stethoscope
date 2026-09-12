@@ -1,8 +1,28 @@
-import { cloneDeep, capitalize } from "lodash";
+import { cloneDeep } from "lodash";
 import browser from "webextension-polyfill";
 import { createScoreDetails, defaultScoreConfig } from "../data";
-import { MessageEventName } from "../types";
-import humanFormat from "human-format";
+import { MessageEventName, ScoreDetails } from "../types";
+import {
+  checkForCommitBuildPassing,
+  checkForDocumentation,
+  checkForLicense,
+  checkForReadme,
+  checkForReleases,
+  checkForSponsorButton,
+  getAuthorName,
+  getCommitCount,
+  getCommitDateElements,
+  getCommitFrequencyScore,
+  getContributorsCount,
+  getHydrationSignals,
+  getIssueScore,
+  getMostRecentCommitTime,
+  getRepoName,
+  getStars,
+  needsHydrationRetry,
+  type LicenseDetectionResult,
+} from "./detection";
+import { createRetryScheduler } from "./hydration";
 
 /*
 
@@ -21,14 +41,41 @@ import humanFormat from "human-format";
 console.log("Launching content script");
 
 const MILLISECONDS_PER_YEAR = 365 * 24 * 60 * 60 * 1000;
+const HYDRATION_RETRY_DELAY_MS = 1500;
+const MAX_HYDRATION_RETRIES = 3;
 
 let scoreConfig = cloneDeep(defaultScoreConfig);
+
+const hydrationRetryScheduler = createRetryScheduler({
+  maxRetries: MAX_HYDRATION_RETRIES,
+  delayMs: HYDRATION_RETRY_DELAY_MS,
+});
+
+/**
+ * License detection is page-scoped: the DOM layers and the one-shot API
+ * fallback run once, then re-scoring reuses the result. Inconclusive results
+ * (no DOM evidence and no usable API response) are retried by later runs.
+ */
+let licenseDetection: Promise<LicenseDetectionResult> | null = null;
+
+function getLicenseDetection(): Promise<LicenseDetectionResult> {
+  if (!licenseDetection) {
+    licenseDetection = checkForLicense(document).then((result) => {
+      if (!result.hasLicense && result.source === "none") {
+        licenseDetection = null;
+      }
+      return result;
+    });
+  }
+  return licenseDetection;
+}
 
 browser.runtime.onMessage.addListener(function (request: any, _sender: any) {
   if (request.eventName === MessageEventName.ConfigChanged) {
     scoreConfig = request.scoreConfig;
   }
 
+  hydrationRetryScheduler.reset();
   getScore().catch(console.log);
 });
 
@@ -36,82 +83,90 @@ browser.runtime.sendMessage({
   eventName: MessageEventName.ConfigRequested,
 });
 
-async function getScore() {
-  //check if we should even be scoring this page
-  const isValidUrl =
+function isValidRepoPage(): boolean {
+  return (
     window.location.pathname.split("/").filter((section) => section !== "")
-      .length === 2;
+      .length === 2
+  );
+}
 
-  if (!isValidUrl) {
+function sendScore(score: ScoreDetails) {
+  browser.runtime.sendMessage(undefined, {
+    eventName: MessageEventName.ScoreCalculated,
+    score,
+  });
+}
+
+async function getScore() {
+  // check if we should even be scoring this page
+  if (!isValidRepoPage()) {
     // do nothing
     return;
   }
 
   const score = createScoreDetails();
 
-  score.authorName = getAuthorName();
-  score.repoName = getRepoName();
+  score.authorName = getAuthorName(document);
+  score.repoName = getRepoName(document);
 
-  if (checkForLicense()) {
-    score.hasLicense = true;
+  const licenseResult = await getLicenseDetection();
+  score.hasLicense = licenseResult.hasLicense;
+  score.hasAmbiguousLicense = licenseResult.hasAmbiguousLicense;
 
-    if (checkForReadme() && scoreConfig.values.readme.enabled) {
+  if (licenseResult.hasLicense) {
+    if (checkForReadme(document) && scoreConfig.values.readme.enabled) {
       score.scores.readme.value = 1;
       score.scores.readme.score = score.scores.readme.maxScore;
     }
 
-    const modifiedDatesElements = Array.from(
-      document.querySelectorAll(".Details time-ago")
-    );
+    const modifiedDatesElements = getCommitDateElements(document);
 
     const mostRecentCommit = getMostRecentCommitTime(modifiedDatesElements);
 
     const timeSinceCommit = Date.now() - mostRecentCommit;
     const percentageOfYear = timeSinceCommit / MILLISECONDS_PER_YEAR;
-    if (percentageOfYear < 1) {
+    if (mostRecentCommit > 0 && percentageOfYear < 1) {
       score.scores.mostRecentCommit.value = mostRecentCommit;
       score.scores.mostRecentCommit.score =
         score.scores.mostRecentCommit.maxScore * (1 - percentageOfYear);
     }
 
-    const sidebarLinks = getAllSidebarLinks();
-
-    const contributorCount = getContributorsCount(sidebarLinks);
+    const contributorCount = getContributorsCount(document);
     if (contributorCount > 5) {
       score.scores.amountOfContributors.value = contributorCount;
       score.scores.amountOfContributors.score =
         score.scores.amountOfContributors.maxScore;
     }
 
-    if (checkForReleases(sidebarLinks)) {
+    if (checkForReleases(document)) {
       score.scores.releases.value = 1;
       score.scores.releases.score = score.scores.releases.maxScore;
     }
 
-    const commitCount = getCommitCount();
+    const commitCount = getCommitCount(document);
     if (commitCount > 100) {
       score.scores.amountOfCommits.value = commitCount;
       score.scores.amountOfCommits.score =
         score.scores.amountOfCommits.maxScore;
     }
 
-    let stars = getStars();
+    const stars = getStars(document);
     if (stars > 100) {
       score.scores.stars.value = stars;
       score.scores.stars.score = score.scores.stars.maxScore;
     }
 
-    if (checkForSponsorButton()) {
+    if (checkForSponsorButton(document)) {
       score.scores.sponsors.value = 1;
       score.scores.sponsors.score = score.scores.sponsors.maxScore;
     }
 
-    if (checkForDocumentation()) {
+    if (checkForDocumentation(document)) {
       score.scores.docsFolder.value = 1;
       score.scores.docsFolder.score = score.scores.docsFolder.maxScore;
     }
 
-    if (checkForCommitBuildPassing()) {
+    if (checkForCommitBuildPassing(document)) {
       score.scores.buildPassing.value = 1;
       score.scores.buildPassing.score = score.scores.buildPassing.maxScore;
     }
@@ -122,305 +177,28 @@ async function getScore() {
         score.scores.commitFrequency.maxScore;
     }
 
-    if (getIssueScore() <= 0.08) {
+    if (getIssueScore(document) <= 0.08) {
       score.scores.openIssues.value = 1;
       score.scores.openIssues.score = score.scores.openIssues.maxScore;
     }
-
-    browser.runtime.sendMessage(undefined, {
-      eventName: MessageEventName.ScoreCalculated,
-      score,
-    });
   } else {
     // immediate fail
     console.log("No License");
-    browser.runtime.sendMessage(undefined, {
-      eventName: MessageEventName.ScoreCalculated,
-      score,
-    });
-  }
-}
-
-function getAuthorName() {
-  const authorLinkElement = document.querySelector('.author a[rel="author"]');
-  return authorLinkElement?.innerHTML || "";
-}
-
-function getRepoName() {
-  const repoNameLinkElement = document.querySelector(
-    '#repository-container-header strong[itemprop="name"] a'
-  );
-  return repoNameLinkElement?.innerHTML || "";
-}
-
-function getIssueScore() {
-  const commitCount = getCommitCount();
-  const starCount = getStars();
-
-  const issueCountElement = document.querySelector(".issues-repo-tab-count");
-  const issueCountString = issueCountElement?.getAttribute("title") || "0";
-  const issueCount = humanFormat.parse(issueCountString);
-
-  let issueCommitRatio = 0;
-  if (commitCount > 0) {
-    issueCommitRatio = issueCount / commitCount;
-  }
-  let issueStarRatio = 0;
-  if (starCount) {
-    issueStarRatio = issueCount / starCount;
   }
 
-  return Math.max(issueCommitRatio, issueStarRatio);
-}
+  sendScore(score);
 
-function getCommitFrequencyScore(modifiedDatesElements: Element[]) {
-  const sortedModifiedDates = [...modifiedDatesElements].map((element) =>
-    new Date(element.getAttribute("datetime") || 0).getTime()
-  );
-
-  const uniqueCommitsSet = new Set(sortedModifiedDates);
-  const uniqueCommits = Array.from(uniqueCommitsSet.values());
-
-  const uniqueRatio = uniqueCommits.length / sortedModifiedDates.length;
-
-  const newestCommit = Math.max(...sortedModifiedDates);
-  const oldestCommit = Math.min(...sortedModifiedDates);
-
-  const commitDistance = newestCommit - oldestCommit;
-
-  let score = uniqueRatio * 0.5;
-
-  if (commitDistance > MILLISECONDS_PER_YEAR * 3) {
-    score += 0.25;
-  }
-  return Math.min(score, 1);
-}
-
-function checkForCommitBuildPassing() {
-  return !!document.querySelector(".commit-build-statuses .octicon-check");
-}
-
-function checkForDocumentation() {
-  return hasAtleastOneSelector(
-    ["documentation", "docs", "Documentation", "Docs"].map(
-      (title) => `.Details a[title="${title}"]`
-    )
-  );
-}
-
-function checkForSponsorButton(): boolean {
-  return !!document.querySelector(".icon-sponsor");
-}
-
-function checkForReleases(sidebarLinks: HTMLAnchorElement[]) {
-  const releasesElement = sidebarLinks.filter((link) => {
-    return link.href.indexOf("/releases") > 0;
-  })[0];
-
-  if (!releasesElement) {
-    return false;
-  } else {
-    const counterElement = releasesElement?.querySelector(".Counter");
-
-    const counterValue = parseInt(
-      scrubNumberString(counterElement?.getAttribute("title") || "0"),
-      10
-    );
-
-    return counterValue > 5;
-  }
-}
-
-function getStars() {
-  const starButton = document.querySelector(".js-social-count");
-
-  const buttonParent = starButton?.parentElement;
-
-  let socialCountElement = buttonParent?.querySelector(".social-count");
-
-  if (!socialCountElement) {
-    socialCountElement =
-      document.querySelector("#repo-stars-counter-unstar") ||
-      document.querySelector("#repo-stars-counter-star");
-  }
-  if (socialCountElement) {
-    return humanFormat.parse(socialCountElement.innerHTML) || 0;
-  }
-
-  return 0;
-}
-
-function getCommitCount() {
-  const gitStatsResult = document.querySelector(".octicon-history");
-
-  if (!gitStatsResult) {
-    return 1;
-  } else {
-    const gitStatsParentElement = gitStatsResult.parentElement;
-    const countElement = gitStatsParentElement?.querySelector("strong");
-
-    return parseInt(scrubNumberString(countElement?.innerText || "0"), 10);
-  }
-}
-
-function getContributorsCount(sidebarLinks: HTMLAnchorElement[]) {
-  const contributorsElement = sidebarLinks.filter((link) => {
-    return link.href.indexOf("/graphs/contributors") > 0;
-  })[0];
-
-  if (!contributorsElement) {
-    return 0;
-  } else {
-    const countElement = contributorsElement?.querySelector(".Counter");
-    const scrubbedNumber = scrubNumberString(
-      countElement?.getAttribute("title") || "0"
-    );
-    return parseInt(scrubbedNumber, 10);
-  }
-}
-
-function getMostRecentCommitTime(modifiedDatesElements: Element[]) {
-  const sortedModifiedDates = [...modifiedDatesElements].map((element) =>
-    new Date(element.getAttribute("datetime") || 0).getTime()
-  );
-
-  return Math.max(...sortedModifiedDates);
-}
-
-function checkForLicense() {
-  const rawFilenames = [
-    "License",
-    "LICENSE",
-    "Licence",
-    "LICENCE",
-    "Licenses",
-    "LICENSES",
-    "Licences",
-    "LICENCES",
-    "COPYING",
-  ];
-
-  const markdownFilenames = rawFilenames.map((filename) => `${filename}.md`);
-
-  const capitalizedMarkdownFilenames = rawFilenames.map(
-    (filename) => `${filename}.MD`
-  );
-
-  const rstFilenames = rawFilenames.map((filename) => `${filename}.rst`);
-
-  const capitalizedRstFilenames = rawFilenames.map(
-    (filename) => `${filename}.RST`
-  );
-
-  const txtFilenames = rawFilenames.map((filename) => `${filename}.txt`);
-
-  const capitalizedTxtFilenames = rawFilenames.map(
-    (filename) => `${filename}.TXT`
-  );
-
-  const hasLicenseFile = hasAtleastOneSelector(
-    [
-      rawFilenames,
-      markdownFilenames,
-      capitalizedMarkdownFilenames,
-      rstFilenames,
-      capitalizedRstFilenames,
-      txtFilenames,
-      capitalizedTxtFilenames,
-    ].map((title) => `.Details a[title="${title}"]`)
-  );
-
-  const hasLicenseSectionInReadme = hasAtleastOneSelector(
-    ["license", "licence", "scroll-license", "scroll-licence"].map(
-      (title) => `#user-content-${title}`
-    )
-  );
-
-  const hasLicenseSectionInSidebar = hasAtleastOneSelector([
-    ".Layout-sidebar .octicon-law",
-  ]);
-
-  let hasLicenseLink = Array.from(document.querySelectorAll("a")).some(
-    (link) => {
-      const href = link.getAttribute("href");
-      if (href) {
-        return href.indexOf("https://opensource.org/licenses") > -1;
-      } else {
-        return false;
-      }
+  // Late-hydrating signals (commit dates, contributor counts) may not be
+  // present yet; schedule a bounded re-score so the final score uses them.
+  // Only licensed repos produce a score worth refining.
+  if (licenseResult.hasLicense) {
+    const signals = getHydrationSignals(document);
+    if (needsHydrationRetry(signals)) {
+      hydrationRetryScheduler.schedule(() => {
+        getScore().catch(console.log);
+      });
     }
-  );
-
-  return (
-    hasLicenseFile ||
-    hasLicenseSectionInReadme ||
-    hasLicenseSectionInSidebar ||
-    hasLicenseLink
-  );
-}
-
-function checkForReadme() {
-  const selectors: string[] = [];
-  const filenames = ["readme", "Readme", "README", "ReadMe"];
-  const lowercaseExtensions = [
-    "",
-    ".md",
-    ".markdown",
-    ".mdown",
-    ".mkdn",
-    ".textile",
-    ".rdoc",
-    ".org",
-    ".creole",
-    ".mediawiki",
-    ".wiki",
-    ".rst",
-    ".asciidoc",
-    ".adoc",
-    ".asc",
-    ".pod",
-  ];
-
-  const capitalizedExtensions = lowercaseExtensions.map(capitalize);
-
-  const uppercaseExtensions = lowercaseExtensions.map((extension) =>
-    extension.toUpperCase()
-  );
-
-  const extensions = [
-    ...lowercaseExtensions,
-    ...capitalizedExtensions,
-    ...uppercaseExtensions,
-  ];
-
-  filenames.forEach((filename) => {
-    extensions.forEach((extension) => {
-      selectors.push(`${filename}${extension}`);
-    });
-  });
-
-  const hasReadme = hasAtleastOneSelector(
-    selectors.map((title) => `.Details a[title="${title}"]`)
-  );
-
-  return hasReadme;
-}
-
-function getAllSidebarLinks(): HTMLAnchorElement[] {
-  const links = Array.from(document.querySelectorAll(".Layout-sidebar a")).map(
-    (linkNode) => linkNode as HTMLAnchorElement
-  );
-  return links;
-}
-
-function hasAtleastOneSelector(selectors: string[]) {
-  return selectors.some((selector) => {
-    return !!document.querySelector(selector);
-  });
-}
-
-function scrubNumberString(stringValue: string) {
-  return stringValue.replace(new RegExp("[^\\d]", "gm"), "");
+  }
 }
 
 export {};

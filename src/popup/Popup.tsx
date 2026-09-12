@@ -171,6 +171,18 @@ const Popup: React.FC = () => {
             )}
             {scoreDetails?.hasLicense && (
               <div className="details">
+                {scoreDetails?.hasAmbiguousLicense && (
+                  <div className="ambiguous-license">
+                    <Icon
+                      icon="bi:question-circle-fill"
+                      className="ambiguous-icon"
+                    />
+                    <p>
+                      A license exists but could not be identified. GitHub
+                      reported it as unrecognized.
+                    </p>
+                  </div>
+                )}
                 <ul>
                   {Object.entries(scoreDetails?.scores || []).map((entry) => {
                     const scoreKey = entry[0] as ScoreKey;

@@ -126,6 +126,29 @@ body {
       overflow-y: scroll;
       padding-bottom: 42px;
 
+      .ambiguous-license {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin: 4px 10px 8px 0;
+        padding: 6px 8px;
+        border: 1px solid #d4a72c;
+        background: #fff8c5;
+        border-radius: 6px;
+        font-size: 12px;
+        text-align: left;
+
+        .ambiguous-icon {
+          color: #9a6700;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        p {
+          margin: 0;
+        }
+      }
+
       &.no-license {
         padding-top: 12px;
 
